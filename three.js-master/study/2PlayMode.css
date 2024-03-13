@@ -1,0 +1,27 @@
+* {
+  outline: none;
+  margin: 0;
+
+}
+
+body {
+  overflow: hidden;
+}
+
+#webgl-container {
+   /* position: absolute; */
+  /* // top : 0; */
+  /* // left : 0; */
+  width: 100%;
+  height: 100%;
+}
+
+#buttons-container {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+}
+
+.hidden {
+  display: none;
+}

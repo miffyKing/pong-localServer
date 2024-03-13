@@ -1,0 +1,74 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Example</title>
+    <script type="importmap">
+    {
+        "imports": {
+            "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+            "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+        }
+    }
+    </script>
+    <script type="module" src="{% static 'js/remoteGame.js' %}" defer></script>
+</head>
+<body>
+
+    <script>
+        var barPositions = {
+            bar1: {x: 0, y:0},
+            bar2: {x: 0, y:0}
+        };
+
+        var ballPosition = {x:0, y:0};
+
+        const chatSocket = new WebSocket(
+            'ws://' + window.location.host + '/ws/chat/'
+        );
+
+        document.addEventListener('keydown', function(event) {
+            const keyName = event.key;
+            console.log('keydown event\n\n' + 'key: ' + keyName );
+
+            if (chatSocket.readyState === WebSocket.OPEN) {
+                chatSocket.send(JSON.stringify({
+                    'message': keyName
+                }));
+            }
+        });
+
+        chatSocket.onmessage = function(e) {
+            const data = JSON.parse(e.data);
+            console.log(data);
+            console.log(data.message);
+
+            if (data.play_bar1_position !== undefined) {
+                console.log('Position: ' + data.play_bar1_position); // 좌표 로깅
+                barPositions.bar1.x = data.play_bar1_position.x;
+                barPositions.bar1.y = data.play_bar1_position.y;
+                
+                // document.getElementById('positionDisplay').innerText = 'Position: ' + data.position; // HTML 요소 업데이트
+            }
+            if (data.play_bar2_position !== undefined) {
+                console.log('Position: ' + data.play_bar2_position); // 좌표 로깅
+                barPositions.bar2.x = data.play_bar2_position.x;
+                barPositions.bar2.y = data.play_bar2_position.y;
+            }
+            if (data.ball_position !== undefined) {
+                console.log('Ball Position: ', data.ball_position);
+                ballPosition.x = data.ball_position.x;
+                ballPosition.y = data.ball_position.y;
+            }
+        };
+
+        chatSocket.onclose = function(e) {
+            console.error('Chat socket closed unexpectedly');
+        };
+    </script>
+
+</body>
+</html>
